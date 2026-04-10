@@ -1,0 +1,30 @@
+{
+  "name": "argon2",
+  "type": "module",
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,mts,cts}": [
+      "eslint",
+      "prettier --write --ignore-unknown"
+    ],
+    "!(*.{js,mjs,cjs,ts,mts,cts})": "prettier --write --ignore-unknown"
+  },
+  "dependencies": {
+    "argon2": "^0.44.0",
+    "hono": "4.12.12",
+    "mongodb": "^7.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.12.2",
+    "eslint": "10.2.0",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.4.0",
+    "husky": "9.1.7",
+    "jiti": "2.6.1",
+    "lint-staged": "16.4.0",
+    "prettier": "3.8.1",
+    "tsx": "4.21.0",
+    "typescript": "6.0.2",
+    "typescript-eslint": "8.58.0"
+  }
+}
