@@ -1,6 +1,7 @@
 import { Hono, Context } from "hono";
 import * as argon2 from "argon2";
 import { MongoClient } from "mongodb";
+import nodeCrypto from "node:crypto";
 
 type responseBody = {
   success: boolean;
@@ -64,8 +65,13 @@ app.post("/headrest8021", async (c) => {
     }
 
     const calculatedHmac = await hmacCalculate(hmacC2V, requestRaw);
+    const calculatedHmacBuf = Buffer.from(calculatedHmac, "base64");
+    const requestHmacBuf = Buffer.from(requestHmac || "", "base64");
 
-    if (calculatedHmac !== requestHmac) {
+    if (
+      calculatedHmacBuf.length !== requestHmacBuf.length ||
+      !nodeCrypto.timingSafeEqual(calculatedHmacBuf, requestHmacBuf)
+    ) {
       return await signedJson(
         c,
         { success: false, errcode: "INVALID_HMAC" },
@@ -75,10 +81,30 @@ app.post("/headrest8021", async (c) => {
 
     const { slug, answer, timestamp } = await c.req.json();
 
-    if (!slug || !answer || !timestamp) {
+    if (
+      typeof slug !== "string" ||
+      typeof answer !== "string" ||
+      typeof timestamp !== "string"
+    ) {
       return await signedJson(
         c,
-        { success: false, errcode: "MISSING_PARAMS" },
+        { success: false, errcode: "INVALID_INPUT" },
+        400,
+      );
+    }
+
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      return await signedJson(
+        c,
+        { success: false, errcode: "INVALID_SLUG" },
+        400,
+      );
+    }
+
+    if (/[^a-zA-Z0-9!@#$%^&*]/.test(answer)) {
+      return await signedJson(
+        c,
+        { success: false, errcode: "INVALID_ANSWER" },
         400,
       );
     }
@@ -91,7 +117,10 @@ app.post("/headrest8021", async (c) => {
       );
     }
 
-    if (Math.abs(Date.now() - Number(timestamp)) > 10 * 1000) {
+    if (
+      isNaN(Number(timestamp)) ||
+      Math.abs(Date.now() - Number(timestamp)) > 10 * 1000
+    ) {
       return await signedJson(
         c,
         { success: false, errcode: "TIMESTAMP_EXPIRED" },
