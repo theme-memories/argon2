@@ -91,7 +91,7 @@ app.post("/headrest8021", async (c) => {
       );
     }
 
-    if (Math.abs(Date.now() - new Date(timestamp).getTime()) > 10 * 1000) {
+    if (Math.abs(Date.now() - Number(timestamp)) > 10 * 1000) {
       return await signedJson(
         c,
         { success: false, errcode: "TIMESTAMP_EXPIRED" },
