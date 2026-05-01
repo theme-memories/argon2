@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "argon2": "0.44.0",
-    "hono": "4.12.15",
+    "hono": "4.12.16",
     "mongodb": "7.2.0"
   },
   "devDependencies": {
